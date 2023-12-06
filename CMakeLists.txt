@@ -7,4 +7,5 @@ project(Games)
 
 add_subdirectory(apps/firstGame)
 add_subdirectory(libs/glad)
+add_subdirectory(libs/glfw)
 

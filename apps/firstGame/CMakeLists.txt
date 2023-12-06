@@ -13,9 +13,9 @@ project(${PROJECT_NAME})
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_HEADERS})
 
-target_link_libraries(${PROJECT_NAME} glad)
 
-# TODO: Vendor this in the libs folder... 
-find_package(glfw3 3.3 REQUIRED)
+set( GLFW_BUILD_DOCS OFF CACHE BOOL  "GLFW lib only" )
+set( GLFW_INSTALL OFF CACHE BOOL  "GLFW lib only" )
 target_link_libraries(${PROJECT_NAME} glfw)
+target_link_libraries(${PROJECT_NAME} glad)
 
