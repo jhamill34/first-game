@@ -14,7 +14,7 @@ mkdir build
 cd build 
 cmake ..
 make 
-./HelloWorld
+./apps/firstGame/FirstGameApp
 ```
 
 
