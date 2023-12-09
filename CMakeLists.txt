@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(Games)
 
-add_subdirectory(apps/firstGame)
+add_subdirectory(apps/FirstGame)
 add_subdirectory(libs/glad)
 add_subdirectory(libs/glfw)
 add_subdirectory(libs/glm)
