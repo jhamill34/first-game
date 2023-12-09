@@ -19,4 +19,5 @@ set( GLFW_INSTALL OFF CACHE BOOL  "GLFW lib only" )
 target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} glad)
 target_link_libraries(${PROJECT_NAME} glm)
+target_link_libraries(${PROJECT_NAME} stb)
 
