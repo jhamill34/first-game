@@ -11,8 +11,6 @@
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
 // settings
@@ -61,11 +59,8 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
 
-
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -180,7 +175,7 @@ int main()
         // activate shader
         cubeShader.use();
         cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        cubeShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        cubeShader.setVec3("lightColor",  250.0f/255.0f, 202.0f/255.0f, 0.8f/255.0f);
 		cubeShader.setVec3("lightPos", lightPos);
 
         // create transformations
@@ -191,13 +186,24 @@ int main()
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         cubeShader.setMat4("view", view);
 
-		glm::mat4 model = glm::mat4(1.0f);
-		// float angle = 20.0f;
-		// model = glm::rotate(model,  (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		cubeShader.setMat4("model", model);
 
-        // render boxes
         glBindVertexArray(cubeVAO);
+		for (unsigned int i = 0; i < 10; i++) {
+			// float angle = 20.0f;
+			// model = glm::rotate(model,  (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(0.0f, 0.0f, (float)i * 2.0f));
+			cubeShader.setMat4("model", model);
+
+			// render boxes
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+		cubeShader.setVec3("objectColor", 0.0f, 1.0f, 0.5f);
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0, -51.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(100.0f));
+		cubeShader.setMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		// also draw the lamp object
@@ -205,7 +211,7 @@ int main()
         lampShader.setMat4("projection", projection);
         lampShader.setMat4("view", view);
 
-        model = glm::mat4(1.0f);
+		model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
         lampShader.setMat4("model", model);
@@ -235,14 +241,44 @@ void processInput(GLFWwindow *window) {
         glfwSetWindowShouldClose(window, true);
 
     float cameraSpeed = static_cast<float>(2.5 * deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	bool rotationChanged = false;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		cameraPos += cameraSpeed * cameraFront;
+	} else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		cameraPos -= cameraSpeed * cameraFront;
+	} else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	} 
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		yaw -= 0.5f;
+		rotationChanged = true;
+	} else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		yaw += 0.5f;
+		rotationChanged = true;
+	} else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		pitch += 0.5f;
+		rotationChanged = true;
+	} else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		pitch -= 0.5f;
+		rotationChanged = true;
+	}
+
+	if (rotationChanged) {
+		// make sure that when pitch is out of bounds, screen doesn't get flipped
+		if (pitch > 89.0f)
+			pitch = 89.0f;
+		if (pitch < -89.0f)
+			pitch = -89.0f;
+
+		glm::vec3 front;
+		front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		front.y = sin(glm::radians(pitch));
+		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		cameraFront = glm::normalize(front);
+	}
 
 	cameraPos.y = 0.0f;
 }
@@ -263,45 +299,5 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-    lastX = xpos;
-    lastY = ypos;
-
-    float sensitivity = 0.1f; // change this value to your liking
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    // make sure that when pitch is out of bounds, screen doesn't get flipped
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(front);
 }
 
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    fov -= (float)yoffset;
-    if (fov < 1.0f)
-        fov = 1.0f;
-    if (fov > 45.0f)
-        fov = 45.0f;
-}
