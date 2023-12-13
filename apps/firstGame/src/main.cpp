@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
+#include "camera.h"
 
 #include <iostream>
 
@@ -18,16 +19,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-
-bool firstMouse = true;
-float yaw = -90.0f;
-float pitch = 0.0f;
-float lastX = static_cast<float>(SCR_WIDTH) / 2.0f;
-float lastY = static_cast<float>(SCR_HEIGHT) / 2.0f;
-float fov = 45.0f;
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
@@ -174,37 +166,45 @@ int main()
 
         // activate shader
         cubeShader.use();
-        cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        cubeShader.setVec3("lightColor",  245.0f/255.0f, 212.0f/255.0f, 171.0f/255.0f);
-		cubeShader.setVec3("lightPos", lightPos);
+
+		cubeShader.setVec3("light.position", lightPos);
+		cubeShader.setVec3("viewPos", camera.Position);
+
+		// material properties
+		// http://devernay.free.fr/cours/opengl/materials.html
+		//
+		// This one is cyan plastic:
+		cubeShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+		cubeShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+		cubeShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+		cubeShader.setFloat("material.shininess", 32.0f);
+
+		// light properties
+        glm::vec3 lightColor = glm::vec3(1.0f);
+        glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); // decrease the influence
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
+        cubeShader.setVec3("light.ambient", ambientColor);
+        cubeShader.setVec3("light.diffuse", diffuseColor);
+        cubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
         // create transformations
         // camera/view transformation
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		cubeShader.setMat4("projection", projection);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 
+				static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
 
-        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		// pass them to the shaders
+		cubeShader.setMat4("projection", projection);
         cubeShader.setMat4("view", view);
 
-
-        glBindVertexArray(cubeVAO);
-		for (unsigned int i = 0; i < 10; i++) {
-			// float angle = 20.0f;
-			// model = glm::rotate(model,  (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, glm::vec3(0.0f, 0.0f, (float)i * 2.0f));
-			cubeShader.setMat4("model", model);
-
-			// render boxes
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
-		cubeShader.setVec3("objectColor", 0.0f, 1.0f, 0.5f);
+		// world transformation
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0, -51.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(100.0f));
 		cubeShader.setMat4("model", model);
+
+		// render boxes
+        glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
 		// also draw the lamp object
         lampShader.use();
@@ -241,52 +241,36 @@ void processInput(GLFWwindow *window) {
         glfwSetWindowShouldClose(window, true);
 
     float cameraSpeed = static_cast<float>(2.5 * deltaTime);
-	bool rotationChanged = false;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		cameraPos += cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(FORWARD, deltaTime);
 	} 
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		cameraPos -= cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	} 
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(LEFT, deltaTime);
 	} 
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(RIGHT, deltaTime);
 	} 
 
+	unsigned char lookFlags = 0;
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		yaw -= 0.5f;
-		rotationChanged = true;
+		lookFlags |= LOOK_LEFT;
 	} 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		yaw += 0.5f;
-		rotationChanged = true;
+		lookFlags |= LOOK_RIGHT;
 	} 
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		pitch += 0.5f;
-		rotationChanged = true;
+		lookFlags |= LOOK_UP;
 	} 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		pitch -= 0.5f;
-		rotationChanged = true;
+		lookFlags |= LOOK_DOWN;
 	}
 
-	if (rotationChanged) {
-		// make sure that when pitch is out of bounds, screen doesn't get flipped
-		if (pitch > 89.0f)
-			pitch = 89.0f;
-		if (pitch < -89.0f)
-			pitch = -89.0f;
-
-		glm::vec3 front;
-		front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-		front.y = sin(glm::radians(pitch));
-		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-		cameraFront = glm::normalize(front);
+	if (lookFlags != 0) {
+		camera.ProcessRotation(lookFlags);
 	}
-
-	cameraPos.y = 0.0f;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
