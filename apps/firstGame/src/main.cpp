@@ -244,24 +244,30 @@ void processInput(GLFWwindow *window) {
 	bool rotationChanged = false;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		cameraPos += cameraSpeed * cameraFront;
-	} else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+	} 
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 		cameraPos -= cameraSpeed * cameraFront;
-	} else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+	} 
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+	} 
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 	} 
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		yaw -= 0.5f;
 		rotationChanged = true;
-	} else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+	} 
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		yaw += 0.5f;
 		rotationChanged = true;
-	} else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+	} 
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		pitch += 0.5f;
 		rotationChanged = true;
-	} else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+	} 
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		pitch -= 0.5f;
 		rotationChanged = true;
 	}
@@ -290,14 +296,5 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
-}
-
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
 }
 
