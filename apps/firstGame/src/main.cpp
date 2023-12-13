@@ -175,7 +175,7 @@ int main()
         // activate shader
         cubeShader.use();
         cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        cubeShader.setVec3("lightColor",  250.0f/255.0f, 202.0f/255.0f, 0.8f/255.0f);
+        cubeShader.setVec3("lightColor",  245.0f/255.0f, 212.0f/255.0f, 171.0f/255.0f);
 		cubeShader.setVec3("lightPos", lightPos);
 
         // create transformations
@@ -211,12 +211,12 @@ int main()
         lampShader.setMat4("projection", projection);
         lampShader.setMat4("view", view);
 
+        glBindVertexArray(lightCubeVAO);
 		model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
         lampShader.setMat4("model", model);
 
-        glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
