@@ -20,4 +20,5 @@ target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} glad)
 target_link_libraries(${PROJECT_NAME} glm)
 target_link_libraries(${PROJECT_NAME} stb)
+target_link_libraries(${PROJECT_NAME} assimp)
 
