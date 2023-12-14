@@ -27,7 +27,6 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 glm::vec3 lightDir(-0.2f, -1.0f, -0.3f);
 
 int main()
@@ -72,7 +71,7 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader cubeShader("shaders/shaders.vert", "shaders/shaders.frag");
-    Shader lampShader("shaders/lamp.vert", "shaders/lamp.frag");
+    Shader lightShader("shaders/lamp.vert", "shaders/lamp.frag");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -135,6 +134,14 @@ int main()
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
+    // positions of the point lights
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3( 3.0f,  0.0f,  0.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };
+
     unsigned int VBO, cubeVAO;
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &VBO);
@@ -194,30 +201,60 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-        // activate shader
-        cubeShader.use();
 
-		// Flashlight 
-		cubeShader.setVec3("light.position", camera.Position);
-		cubeShader.setVec3("light.direction", camera.Front);
-		// cubeShader.setVec3("light.position", lightPos);
-		// cubeShader.setVec3("light.direction", lightDir);
+		// activate shader
+		cubeShader.use();
 
-		cubeShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-		cubeShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 		cubeShader.setVec3("viewPos", camera.Position);
+		cubeShader.setFloat("material.shininess", 32.0f);
 
-		// material properties
-		// http://devernay.free.fr/cours/opengl/materials.html
-        cubeShader.setFloat("material.shininess", 32.0f);
-
-        cubeShader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f); 
-        cubeShader.setVec3("light.diffuse", 0.8f, 0.8f, 0.8f);
-        cubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.setFloat("light.constant", 1.0f);
-		cubeShader.setFloat("light.linear", 0.09f);
-		cubeShader.setFloat("light.quadratic", 0.032f);
-
+		/*
+		   Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index 
+		   the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
+		   by defining light types as classes and set their values in there, or by using a more efficient uniform approach
+		   by using 'Uniform buffer objects', but that is something we'll discuss in the 'Advanced GLSL' tutorial.
+		   */
+		// directional light
+		cubeShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+		cubeShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+		cubeShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+		cubeShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+		// point light 1
+		cubeShader.setVec3("pointLights[0].position", pointLightPositions[1]);
+		cubeShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+		cubeShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+		cubeShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+		cubeShader.setFloat("pointLights[0].constant", 1.0f);
+		cubeShader.setFloat("pointLights[0].linear", 0.09f);
+		cubeShader.setFloat("pointLights[0].quadratic", 0.032f);
+		// point light 2
+		cubeShader.setVec3("pointLights[1].position", pointLightPositions[2]);
+		cubeShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
+		cubeShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
+		cubeShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+		cubeShader.setFloat("pointLights[1].constant", 1.0f);
+		cubeShader.setFloat("pointLights[1].linear", 0.09f);
+		cubeShader.setFloat("pointLights[1].quadratic", 0.032f);
+		// point light 3
+		cubeShader.setVec3("pointLights[2].position", pointLightPositions[3]);
+		cubeShader.setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
+		cubeShader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
+		cubeShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+		cubeShader.setFloat("pointLights[2].constant", 1.0f);
+		cubeShader.setFloat("pointLights[2].linear", 0.09f);
+		cubeShader.setFloat("pointLights[2].quadratic", 0.032f);
+		// point light 4
+	    cubeShader.setVec3("spotLights[0].position", pointLightPositions[0]);
+        cubeShader.setVec3("spotLights[0].direction", glm::vec3(-1.0f, 0.0f, -1.0f));
+        cubeShader.setVec3("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
+        cubeShader.setVec3("spotLights[0].diffuse", 1.0f, 1.0f, 1.0f);
+        cubeShader.setVec3("spotLights[0].specular", 1.0f, 1.0f, 1.0f);
+        cubeShader.setFloat("spotLights[0].constant", 1.0f);
+        cubeShader.setFloat("spotLights[0].linear", 0.09f);
+        cubeShader.setFloat("spotLights[0].quadratic", 0.032f);
+        cubeShader.setFloat("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
+        cubeShader.setFloat("spotLights[0].outerCutOff", glm::cos(glm::radians(15.0f)));   	
+	    
         // create transformations
         // camera/view transformation
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 
@@ -248,6 +285,19 @@ int main()
 			cubeShader.setMat4("model", model);
 
 			// render boxes
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+		lightShader.use();
+		lightShader.setMat4("projection", projection);
+		lightShader.setMat4("view", view);
+
+		glBindVertexArray(lightCubeVAO);
+		for (unsigned int i = 0; i < 4; i++) {
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, pointLightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cubeVAO
+			lightShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
