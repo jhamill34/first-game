@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "glm/ext/matrix_transform.hpp"
 #include "shader.h"
 #include "camera.h"
 
@@ -74,7 +75,8 @@ int main()
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		// vertex             // normal           
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -174,18 +176,16 @@ int main()
 		// http://devernay.free.fr/cours/opengl/materials.html
 		//
 		// This one is cyan plastic:
-		cubeShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-		cubeShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-		cubeShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-		cubeShader.setFloat("material.shininess", 32.0f);
-
-		// light properties
-        glm::vec3 lightColor = glm::vec3(1.0f);
-        glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); // decrease the influence
-        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
-        cubeShader.setVec3("light.ambient", ambientColor);
-        cubeShader.setVec3("light.diffuse", diffuseColor);
+        // light properties
+        cubeShader.setVec3("light.ambient", 1.0f, 1.0f, 1.0f); // note that all light colors are set at full intensity
+        cubeShader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
         cubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+        // material properties
+        cubeShader.setVec3("material.ambient", 0.0f, 0.1f, 0.06f);
+        cubeShader.setVec3("material.diffuse", 0.0f, 0.50980392f, 0.50980392f);
+        cubeShader.setVec3("material.specular", 0.50196078f, 0.50196078f, 0.50196078f);
+        cubeShader.setFloat("material.shininess", 32.0f);
 
         // create transformations
         // camera/view transformation
@@ -197,14 +197,19 @@ int main()
 		cubeShader.setMat4("projection", projection);
         cubeShader.setMat4("view", view);
 
-		// world transformation
-		glm::mat4 model = glm::mat4(1.0f);
-		cubeShader.setMat4("model", model);
-
-		// render boxes
         glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		for (int i = 0; i < 10; i++) {
+			// world transformation
+			glm::mat4 model = glm::mat4(1.0f);
+			float rotation = 20.0f * i;
+			model = glm::rotate(model, glm::radians(rotation), glm::vec3(1.0f, 0.3f, 0.5f));
+			model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f * i));
+			cubeShader.setMat4("model", model);
+
+			// render boxes
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		// also draw the lamp object
         lampShader.use();
@@ -212,7 +217,7 @@ int main()
         lampShader.setMat4("view", view);
 
         glBindVertexArray(lightCubeVAO);
-		model = glm::mat4(1.0f);
+		glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
         lampShader.setMat4("model", model);

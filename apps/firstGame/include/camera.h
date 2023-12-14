@@ -82,6 +82,8 @@ public:
             Position -= Right * velocity;
         if (direction == RIGHT)
             Position += Right * velocity;
+
+		Position.y = 0.0f;
     }
 
 	void ProcessRotation(unsigned char direction) {
