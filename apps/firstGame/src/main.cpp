@@ -217,9 +217,9 @@ int main()
 		for (int i = 0; i < 10; i++) {
 			// world transformation
 			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(2.0f * i, 0.0f, 2.0f * i));
 			float rotation = 20.0f * i;
 			model = glm::rotate(model, glm::radians(rotation), glm::vec3(1.0f, 0.3f, 0.5f));
-			model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f * i));
 			cubeShader.setMat4("model", model);
 
 			// render boxes
