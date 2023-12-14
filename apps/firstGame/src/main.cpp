@@ -153,10 +153,12 @@ int main()
 
 	unsigned int diffuseMap = loadTexture("textures/container2.png");
 	unsigned int specularMap = loadTexture("textures/container2_specular.png");
+	unsigned int emissionMap = loadTexture("textures/container2_emission.png");
 
 	cubeShader.use();
 	cubeShader.setInt("material.diffuse", 0);
 	cubeShader.setInt("material.specular", 1);
+	cubeShader.setInt("material.emission", 2);
 
     // render loop
     // -----------
@@ -191,12 +193,6 @@ int main()
         cubeShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
         cubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffuseMap);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, specularMap);
-
         // create transformations
         // camera/view transformation
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 
@@ -206,6 +202,15 @@ int main()
 		// pass them to the shaders
 		cubeShader.setMat4("projection", projection);
         cubeShader.setMat4("view", view);
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularMap);
+		
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, emissionMap);
 
         glBindVertexArray(cubeVAO);
 
