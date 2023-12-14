@@ -142,6 +142,15 @@ int main()
         glm::vec3( 0.0f,  0.0f, -3.0f)
     };
 
+	glm::vec4 bgColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+
+	glm::vec3 pointLightColors[] = {
+		glm::vec3(1.0f, 0.6f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 1.0, 0.0),
+		glm::vec3(0.2f, 0.2f, 1.0f)
+	};
+
     unsigned int VBO, cubeVAO;
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &VBO);
@@ -198,7 +207,7 @@ int main()
 
         // render
         // ------
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
 
@@ -221,37 +230,37 @@ int main()
 		cubeShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 		// point light 1
 		cubeShader.setVec3("pointLights[0].position", pointLightPositions[1]);
-		cubeShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-		cubeShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-		cubeShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+		cubeShader.setVec3("pointLights[0].ambient", pointLightColors[1] * 0.1f);
+		cubeShader.setVec3("pointLights[0].diffuse", pointLightColors[1]);
+		cubeShader.setVec3("pointLights[0].specular", pointLightColors[1]);
 		cubeShader.setFloat("pointLights[0].constant", 1.0f);
-		cubeShader.setFloat("pointLights[0].linear", 0.09f);
-		cubeShader.setFloat("pointLights[0].quadratic", 0.032f);
+		cubeShader.setFloat("pointLights[0].linear", 0.07f);
+		cubeShader.setFloat("pointLights[0].quadratic", 0.017f);
 		// point light 2
 		cubeShader.setVec3("pointLights[1].position", pointLightPositions[2]);
-		cubeShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
-		cubeShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
-		cubeShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+		cubeShader.setVec3("pointLights[1].ambient", pointLightColors[2] * 0.1f);
+		cubeShader.setVec3("pointLights[1].diffuse", pointLightColors[2]);
+		cubeShader.setVec3("pointLights[1].specular", pointLightColors[2]);
 		cubeShader.setFloat("pointLights[1].constant", 1.0f);
-		cubeShader.setFloat("pointLights[1].linear", 0.09f);
-		cubeShader.setFloat("pointLights[1].quadratic", 0.032f);
+		cubeShader.setFloat("pointLights[1].linear", 0.07f);
+		cubeShader.setFloat("pointLights[1].quadratic", 0.017f);
 		// point light 3
 		cubeShader.setVec3("pointLights[2].position", pointLightPositions[3]);
-		cubeShader.setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
-		cubeShader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
-		cubeShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+		cubeShader.setVec3("pointLights[2].ambient", pointLightColors[3] * 0.1f);
+		cubeShader.setVec3("pointLights[2].diffuse", pointLightColors[3]);
+		cubeShader.setVec3("pointLights[2].specular", pointLightColors[3]);
 		cubeShader.setFloat("pointLights[2].constant", 1.0f);
-		cubeShader.setFloat("pointLights[2].linear", 0.09f);
-		cubeShader.setFloat("pointLights[2].quadratic", 0.032f);
+		cubeShader.setFloat("pointLights[2].linear", 0.07f);
+		cubeShader.setFloat("pointLights[2].quadratic", 0.017f);
 		// point light 4
 	    cubeShader.setVec3("spotLights[0].position", pointLightPositions[0]);
         cubeShader.setVec3("spotLights[0].direction", glm::vec3(-1.0f, 0.0f, -1.0f));
-        cubeShader.setVec3("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
-        cubeShader.setVec3("spotLights[0].diffuse", 1.0f, 1.0f, 1.0f);
-        cubeShader.setVec3("spotLights[0].specular", 1.0f, 1.0f, 1.0f);
+        cubeShader.setVec3("spotLights[0].ambient", pointLightColors[0] * 0.1f);
+        cubeShader.setVec3("spotLights[0].diffuse", pointLightColors[0]);
+        cubeShader.setVec3("spotLights[0].specular", pointLightColors[0]);
         cubeShader.setFloat("spotLights[0].constant", 1.0f);
-        cubeShader.setFloat("spotLights[0].linear", 0.09f);
-        cubeShader.setFloat("spotLights[0].quadratic", 0.032f);
+        cubeShader.setFloat("spotLights[0].linear", 0.07f);
+        cubeShader.setFloat("spotLights[0].quadratic", 0.017f);
         cubeShader.setFloat("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
         cubeShader.setFloat("spotLights[0].outerCutOff", glm::cos(glm::radians(15.0f)));   	
 	    
@@ -298,6 +307,7 @@ int main()
 			model = glm::translate(model, pointLightPositions[i]);
 			model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cubeVAO
 			lightShader.setMat4("model", model);
+			lightShader.setVec3("lightColor", pointLightColors[i]);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
