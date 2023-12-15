@@ -26,8 +26,6 @@ int main() {
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("shaders/backpack.vert", "shaders/backpack.frag");
-    // Shader lightShader("shaders/lamp.vert", "shaders/lamp.frag");
-	
 	Model ourModel("models/backpack/backpack.obj");
 
 	glm::vec4 bgColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
