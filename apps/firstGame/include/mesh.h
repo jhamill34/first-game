@@ -20,18 +20,25 @@ struct Texture {
 	std::string path;
 };
 
+struct DefaultMaterial {
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	float shininess;
+};
+
 class Mesh {
 	public:
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
 		std::vector<Texture> textures;
-		float shininess;
+		DefaultMaterial material;
 
-		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, float shininess) {
+		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, DefaultMaterial defaultMaterial) {
 			this->vertices = vertices;
 			this->indices = indices;
 			this->textures = textures;
-			this->shininess = shininess;
+			this->material = defaultMaterial;
 
 			setupMesh();
 		}
@@ -58,7 +65,10 @@ class Mesh {
 				glBindTexture(GL_TEXTURE_2D, textures[i].id);
 			}
 
-			shader.setFloat("material.shininess", shininess);
+			shader.setFloat("material.shininess", material.shininess);
+			shader.setVec3("material.ambient", material.ambient);
+			shader.setVec3("material.diffuse", material.diffuse);
+			shader.setVec3("material.specular", material.specular);
 
 			// draw mesh
 			glBindVertexArray(VAO);

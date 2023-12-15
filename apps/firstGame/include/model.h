@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 
+#include "assimp/material.h"
 #include "mesh.h"
 #include "texture.h"
 #include "shader.h"
@@ -16,10 +17,8 @@ class Model {
 		std::vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 		std::vector<Mesh>    meshes;
 		std::string directory;
-		float shininess;
 
-		Model(const std::string& path, const float shininess) {
-			this->shininess = shininess;
+		Model(const std::string& path) {
 			loadModel(path);
 		}
 
@@ -114,9 +113,21 @@ class Model {
 			// we assume a convention for sampler names in the shaders. Each diffuse texture should be named
 			// as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
 			// Same applies to other texture as the following list summarizes:
-			// diffuse: texture_diffuseN
 			// specular: texture_specularN
 			// normal: texture_normalN
+
+			ai_real shininess;
+			C_STRUCT aiColor4D ambient, diffuse, specular;
+			material->Get(AI_MATKEY_SHININESS, shininess);
+			material->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
+			material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+			material->Get(AI_MATKEY_COLOR_SPECULAR, specular);
+
+			DefaultMaterial defaultMaterial;
+			defaultMaterial.ambient = glm::vec3(ambient.r, ambient.g, ambient.b);
+			defaultMaterial.diffuse = glm::vec3(diffuse.r, diffuse.g, diffuse.b);
+			defaultMaterial.specular = glm::vec3(specular.r, specular.g, specular.b);
+			defaultMaterial.shininess = shininess;
 
 			// 1. diffuse maps
 			std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
@@ -126,7 +137,7 @@ class Model {
 			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 			
 			// return a mesh object created from the extracted mesh data
-			return Mesh(vertices, indices, textures, shininess);
+			return Mesh(vertices, indices, textures, defaultMaterial);
 		}
 
 		std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {

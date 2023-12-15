@@ -27,7 +27,7 @@ int main() {
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("shaders/shaders.vert", "shaders/shaders.frag");
-	Model ourModel("models/backpack/backpack.obj", 32.0f);
+	Model ourModel("models/backpack/backpack.obj");
 	DirectionalLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f), glm::vec3(0.4f), glm::vec3(0.5f));
 
 	glm::vec4 bgColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
