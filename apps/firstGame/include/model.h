@@ -16,8 +16,10 @@ class Model {
 		std::vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 		std::vector<Mesh>    meshes;
 		std::string directory;
+		float shininess;
 
-		Model(const std::string& path) {
+		Model(const std::string& path, const float shininess) {
+			this->shininess = shininess;
 			loadModel(path);
 		}
 
@@ -124,7 +126,7 @@ class Model {
 			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 			
 			// return a mesh object created from the extracted mesh data
-			return Mesh(vertices, indices, textures);
+			return Mesh(vertices, indices, textures, shininess);
 		}
 
 		std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {

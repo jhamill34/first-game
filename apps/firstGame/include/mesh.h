@@ -25,11 +25,13 @@ class Mesh {
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
 		std::vector<Texture> textures;
+		float shininess;
 
-		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
+		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, float shininess) {
 			this->vertices = vertices;
 			this->indices = indices;
 			this->textures = textures;
+			this->shininess = shininess;
 
 			setupMesh();
 		}
@@ -52,9 +54,11 @@ class Mesh {
 				else if (name == "texture_emitter") 
 					number = std::to_string(emitterNr++);
 
-				shader.setInt((name + number).c_str(), i);
+				shader.setInt(("material." + name + number).c_str(), i);
 				glBindTexture(GL_TEXTURE_2D, textures[i].id);
 			}
+
+			shader.setFloat("material.shininess", shininess);
 
 			// draw mesh
 			glBindVertexArray(VAO);

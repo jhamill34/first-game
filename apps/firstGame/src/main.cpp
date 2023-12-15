@@ -10,6 +10,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "model.h"
+#include "light.h"
 
 void processInput(GLFWwindow* window);
 
@@ -25,8 +26,9 @@ int main() {
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader ourShader("shaders/backpack.vert", "shaders/backpack.frag");
-	Model ourModel("models/backpack/backpack.obj");
+    Shader ourShader("shaders/shaders.vert", "shaders/shaders.frag");
+	Model ourModel("models/backpack/backpack.obj", 32.0f);
+	DirectionalLight dirLight(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f), glm::vec3(0.4f), glm::vec3(0.5f));
 
 	glm::vec4 bgColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -51,6 +53,8 @@ int main() {
 
 		// don't forget to enable shader before setting uniforms
         ourShader.use();
+		ourShader.setVec3("viewPos", camera.Position);
+		dirLight.Apply(ourShader);
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
