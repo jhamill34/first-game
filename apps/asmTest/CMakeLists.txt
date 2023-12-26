@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.27)
+
+set(PROJECT_NAME
+	AsmTestApp
+)
+set(PROJECT_SOURCE_DIR src)
+file(GLOB_RECURSE PROJECT_SOURCE ${PROJECT_SOURCE_DIR}/*.c ${PROJECT_SOURCE_DIR}/*.s)
+
+# set(PROJECT_HEADERS include)
+# file(GLOB_RECURSE PROJECT_HEADER ${PROJECT_HEADERS}/*.h)
+
+enable_language(ASM)
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -e _start")
+list(REMOVE_ITEM CMAKE_CXX_IMPLICIT_LINK_LIBRARIES stdc++)
+
+project(${PROJECT_NAME})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCE})
+# target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_HEADERS})
+
