@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
 
 set(PROJECT_NAME
-	PlainApp
+	ViewApp
 )
 set(PROJECT_SOURCE_DIR src)
 file(GLOB_RECURSE PROJECT_SOURCE ${PROJECT_SOURCE_DIR}/*.cpp)
